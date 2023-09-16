@@ -1,6 +1,5 @@
  package org.firstinspires.ftc.teamcode;
 
- import com.qualcomm.robotcore.eventloop.opmode.Disabled;
  import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
  import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
  import com.qualcomm.robotcore.hardware.DcMotor;
@@ -19,6 +18,11 @@
      private DcMotor rightRearDrive = null;
      private DcMotor intakeMotor = null;
      private DcMotor elevatorMotor = null;
+
+     private double averageRobotSpeed = 0;
+     private double speedNow = 0;
+     private double speedSum = 0;
+     private double speedCount = 0;
 
  
      @Override
@@ -65,7 +69,13 @@
 
              leftPower    = Range.clip(drive + turn, -1.0, 1.0) ;
              rightPower   = Range.clip(drive - turn, -1.0, 1.0) ;
- 
+
+             speedNow = Math.abs(leftPower) + Math.abs(rightPower) / 2;
+             speedCount++;
+             speedSum += speedNow;
+             averageRobotSpeed = speedSum / speedCount;
+
+
              // Send calculated power to wheels
              leftFrontDrive.setPower(leftPower);
              rightFrontDrive.setPower(rightPower);
@@ -77,6 +87,7 @@
              telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
              telemetry.addData("Motors", "intake (%.2f)", intakePower);
              telemetry.addData("Motors", "elevator (%.2f)", elevatorPower);
+             telemetry.addData("avg robot speed", averageRobotSpeed);
              telemetry.update();
 
          }
