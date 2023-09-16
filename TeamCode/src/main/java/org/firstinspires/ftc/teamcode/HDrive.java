@@ -1,4 +1,4 @@
- package org.firstinspires.ftc.robotcontroller.external.samples;
+package org.firstinspires.ftc.teamcode;
 
  import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
  import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -8,7 +8,7 @@
  import com.qualcomm.robotcore.util.Range;
  
  @TeleOp(name="H Drive", group="Linear Opmode")
- @Disabled
+// @Disabled
  public class HDrive extends LinearOpMode {
  
      // Declare OpMode members.
@@ -41,7 +41,7 @@
              // Setup a variable for each drive wheel to save power level for telemetry
              double leftPower;
              double rightPower;
-             double hPower;
+             double hPower = 0;
  
              double drive = -gamepad1.left_stick_y;
              double turn  =  gamepad1.right_stick_x;

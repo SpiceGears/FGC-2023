@@ -7,8 +7,8 @@
  import com.qualcomm.robotcore.util.ElapsedTime;
  import com.qualcomm.robotcore.util.Range;
 
- @TeleOp(name="H Drive", group="Linear Opmode")
- @Disabled
+ @TeleOp(name="Singapore", group="Linear Opmode")
+// @Disabled
  public class Singapore extends LinearOpMode {
  
      // Declare OpMode members.
