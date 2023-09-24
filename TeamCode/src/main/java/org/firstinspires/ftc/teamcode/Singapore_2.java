@@ -4,10 +4,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name="Singapore_22", group="Linear Opmode")
+@TeleOp(name="Singapore_2", group="Linear Opmode")
 // @Disabled
 public class Singapore_2 extends LinearOpMode {
 
@@ -17,10 +18,12 @@ public class Singapore_2 extends LinearOpMode {
     private DcMotor leftRearDrive = null;
     private DcMotor rightFrontDrive = null;
     private DcMotor rightRearDrive = null;
-    private DcMotor intakeMotor = null;
+    private DcMotor intakeMotor1 = null;
+    private DcMotor intakeMotor2 = null;
     private DcMotor elevatorMotor1 = null;
     private DcMotor elevatorMotor2 = null;
-    private DcMotor bucketMotor = null;
+    //private DcMotor bucketMotor = null;
+    private Servo bucketServo = null;
 
     private double averageRobotSpeed = 0;
     private double speedNow = 0;
@@ -55,24 +58,29 @@ public class Singapore_2 extends LinearOpMode {
         rightRearDrive = hardwareMap.get(DcMotor.class, "rr_d");
         elevatorMotor1 = hardwareMap.get(DcMotor.class, "el");
         elevatorMotor2 = hardwareMap.get(DcMotor.class, "el1");
-        intakeMotor = hardwareMap.get(DcMotor.class, "in");
-        bucketMotor = hardwareMap.get(DcMotor.class, "bu");
+        intakeMotor1 = hardwareMap.get(DcMotor.class, "in");
+        intakeMotor2 = hardwareMap.get(DcMotor.class, "in1");
+        //  bucketMotor = hardwareMap.get(DcMotor.class, "bu");
+        bucketServo = hardwareMap.get(Servo.class, "b_s");
 
 
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
-        intakeMotor.setDirection(DcMotor.Direction.FORWARD);
+        leftRearDrive.setDirection(DcMotor.Direction.REVERSE);
+        rightRearDrive.setDirection(DcMotor.Direction.FORWARD);
+        intakeMotor1.setDirection(DcMotor.Direction.FORWARD);
+        intakeMotor2.setDirection(DcMotor.Direction.FORWARD);
         elevatorMotor1.setDirection(DcMotor.Direction.FORWARD);
         elevatorMotor2.setDirection(DcMotor.Direction.REVERSE);
-        bucketMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        //bucketMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         elevatorMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         elevatorMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        bucketMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //bucketMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         elevatorMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         elevatorMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        bucketMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //bucketMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
@@ -85,13 +93,16 @@ public class Singapore_2 extends LinearOpMode {
         if(opModeIsActive()) {
             elevatorMotor1.setTargetPosition(minElevatorPosition);
             elevatorMotor2.setTargetPosition(minElevatorPosition);
-            bucketMotor.setTargetPosition(bucketRestPosition);
+            //  bucketMotor.setTargetPosition(bucketRestPosition);
             elevatorMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             elevatorMotor2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            bucketMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            //bucketMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             elevatorMotor1.setPower(elevatorMoveSpeed);
             elevatorMotor2.setPower(0.6);
-            bucketMotor.setPower(0.6);
+            //bucketMotor.setPower(0.6);
+
+            bucketServo.setPosition(100);
+            bucketServo.setDirection(Servo.Direction.FORWARD);
         }
 
         // run until the end of the match (driver presses STOP)
@@ -99,7 +110,20 @@ public class Singapore_2 extends LinearOpMode {
 
             double drive = -gamepad1.left_stick_y;
             double turn  =  gamepad1.right_stick_x;
-            intakePower = gamepad1.right_trigger;
+
+            if(gamepad1.right_trigger > gamepad1.left_trigger) {
+                intakePower = gamepad1.right_trigger;
+            } else if(gamepad1.right_trigger < gamepad1.left_trigger) {
+                intakePower = -gamepad1.left_trigger;
+            } else {
+                intakePower = 0;
+            }
+
+            if(gamepad1.b) {
+                bucketServo.setPosition(0);
+            } else {
+                bucketServo.setPosition(100);
+            }
 
 
             if(gamepad1.a){
@@ -114,23 +138,23 @@ public class Singapore_2 extends LinearOpMode {
                 elevatorMotor1.setTargetPosition(maxElevatorPosition);
                 elevatorMotor2.setTargetPosition(maxElevatorPosition);
             }
-            if (gamepad1.left_bumper && (elevatorMotor1.getCurrentPosition() > bucketFlipTreshold) ) {
-                bucketMotor.setTargetPosition(bucketFlipPosition);
-            }
-            if (gamepad1.right_bumper) {
-                bucketMotor.setTargetPosition(bucketRestPosition);
-            }
+            //if (gamepad1.left_bumper && (elevatorMotor1.getCurrentPosition() > bucketFlipTreshold) ) {
+            //bucketMotor.setTargetPosition(bucketFlipPosition);
+            //}
+            //if (gamepad1.right_bumper) {
+            //  bucketMotor.setTargetPosition(bucketRestPosition);
+            //}
 
-            if (elevatorMotor1.getTargetPosition() < bucketFlipTreshold) {
-                bucketMotor.setTargetPosition(bucketRestPosition);
-            }
-            if (elevatorMotor1.getCurrentPosition() < bucketFlipTreshold && bucketMotor.getCurrentPosition() > 10+bucketRestPosition) {
-                elevatorMotor1.setPower(0);
-                elevatorMotor2.setPower(0);
-            } else {
-                elevatorMotor1.setPower(elevatorMoveSpeed);
-                elevatorMotor2.setPower(elevatorMoveSpeed);
-            }
+            //if (elevatorMotor1.getTargetPosition() < bucketFlipTreshold) {
+            //   bucketMotor.setTargetPosition(bucketRestPosition);
+            //}
+            //if (elevatorMotor1.getCurrentPosition() < bucketFlipTreshold && bucketMotor.getCurrentPosition() > 10+bucketRestPosition) {
+            //elevatorMotor1.setPower(0);
+            //  elevatorMotor2.setPower(0);
+            //} else {
+            //elevatorMotor1.setPower(elevatorMoveSpeed);
+            //  elevatorMotor2.setPower(elevatorMoveSpeed);
+            //}
 
 
 
@@ -146,7 +170,10 @@ public class Singapore_2 extends LinearOpMode {
             // Send calculated power to wheels
             leftFrontDrive.setPower(leftPower);
             rightFrontDrive.setPower(rightPower);
-            intakeMotor.setPower(intakePower);
+            leftRearDrive.setPower(leftPower);
+            rightRearDrive.setPower(rightPower);
+            intakeMotor1.setPower(intakePower);
+            intakeMotor2.setPower(intakePower);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
