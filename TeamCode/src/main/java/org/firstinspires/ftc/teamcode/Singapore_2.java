@@ -13,6 +13,8 @@ public class Singapore_2 extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
+
+    //declare hardware
     private DcMotor leftFrontDrive = null;
     private DcMotor leftRearDrive = null;
     private DcMotor rightFrontDrive = null;
@@ -21,7 +23,6 @@ public class Singapore_2 extends LinearOpMode {
     private DcMotor intakeMotor2 = null;
     private DcMotor elevatorMotor1 = null;
     private DcMotor elevatorMotor2 = null;
-    //private DcMotor bucketMotor = null;
     private Servo bucketServo1 = null;
     private Servo bucketServo2 = null;
 
@@ -30,7 +31,8 @@ public class Singapore_2 extends LinearOpMode {
     private double speedSum = 0;
     private double speedCount = 0;
 
-    double elevatorMoveSpeed = 0.6;
+    double elevatorMoveSpeed = 1;
+    int startElevatorPosition = 0;
     int maxElevatorPosition = 7200;
     int minElevatorPosition = 60;
     int midElevatorPosition = 3600;
@@ -41,9 +43,8 @@ public class Singapore_2 extends LinearOpMode {
     int bucketFlipTreshold = 3000; // if over this amount of ticks, can flip bucket
 
     // insert angleToServo(angle from vertical)
-    double servoStartPosition = angleToServo(90);
-    double servoFlippedPosition = angleToServo(-90);
-
+    double servoStartPosition = angleToServo(-90);
+    double servoFlippedPosition = angleToServo(25);
 
     // Setup a variable for each drive wheel to save power level for telemetry
     double leftPower;
@@ -56,20 +57,11 @@ public class Singapore_2 extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
-        leftFrontDrive = hardwareMap.get(DcMotor.class, "lf_d");
-        leftRearDrive = hardwareMap.get(DcMotor.class, "lr_d");
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "rf_d");
-        rightRearDrive = hardwareMap.get(DcMotor.class, "rr_d");
-        elevatorMotor1 = hardwareMap.get(DcMotor.class, "el");
-        elevatorMotor2 = hardwareMap.get(DcMotor.class, "el1");
-        intakeMotor1 = hardwareMap.get(DcMotor.class, "in");
-        intakeMotor2 = hardwareMap.get(DcMotor.class, "in1");
-        //  bucketMotor = hardwareMap.get(DcMotor.class, "bu");
-        bucketServo1 = hardwareMap.get(Servo.class, "b_s1");
-        bucketServo2 = hardwareMap.get(Servo.class, "b_s2");
+        // map hardware to port names
+        mapHardware();
 
 
-
+        // set hardware properties
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         leftRearDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -78,37 +70,27 @@ public class Singapore_2 extends LinearOpMode {
         intakeMotor2.setDirection(DcMotor.Direction.FORWARD);
         elevatorMotor1.setDirection(DcMotor.Direction.FORWARD);
         elevatorMotor2.setDirection(DcMotor.Direction.REVERSE);
-        //bucketMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         bucketServo1.setDirection(Servo.Direction.FORWARD);
         bucketServo2.setDirection(Servo.Direction.REVERSE);
 
         elevatorMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         elevatorMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //bucketMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         elevatorMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         elevatorMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //bucketMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
         runtime.reset();
 
-//        elevatorMotor1.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-//        elevatorMotor2.setMode(DcMotor.RunMode.RUN_USING_ENCODERS);
-
         // run once after pressing start
         if(opModeIsActive()) {
-            elevatorMotor1.setTargetPosition(minElevatorPosition);
-            elevatorMotor2.setTargetPosition(minElevatorPosition);
-            //  bucketMotor.setTargetPosition(bucketRestPosition);
+            elevatorMotor1.setTargetPosition(startElevatorPosition);
+            elevatorMotor2.setTargetPosition(startElevatorPosition);
             elevatorMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             elevatorMotor2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            //bucketMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             elevatorMotor1.setPower(elevatorMoveSpeed);
-            elevatorMotor2.setPower(0.6);
-            //bucketMotor.setPower(0.6);
-
+            elevatorMotor2.setPower(elevatorMoveSpeed);
             bucketServo1.setPosition(servoStartPosition);
             bucketServo2.setPosition(servoStartPosition);
         }
@@ -148,25 +130,6 @@ public class Singapore_2 extends LinearOpMode {
                 elevatorMotor1.setTargetPosition(maxElevatorPosition);
                 elevatorMotor2.setTargetPosition(maxElevatorPosition);
             }
-            //if (gamepad1.left_bumper && (elevatorMotor1.getCurrentPosition() > bucketFlipTreshold) ) {
-            //bucketMotor.setTargetPosition(bucketFlipPosition);
-            //}
-            //if (gamepad1.right_bumper) {
-            //  bucketMotor.setTargetPosition(bucketRestPosition);
-            //}
-
-            //if (elevatorMotor1.getTargetPosition() < bucketFlipTreshold) {
-            //   bucketMotor.setTargetPosition(bucketRestPosition);
-            //}
-            //if (elevatorMotor1.getCurrentPosition() < bucketFlipTreshold && bucketMotor.getCurrentPosition() > 10+bucketRestPosition) {
-            //elevatorMotor1.setPower(0);
-            //  elevatorMotor2.setPower(0);
-            //} else {
-            //elevatorMotor1.setPower(elevatorMoveSpeed);
-            //  elevatorMotor2.setPower(elevatorMoveSpeed);
-            //}
-
-
 
             leftPower    = Range.clip(drive + turn, -1.0, 1.0) ;
             rightPower   = Range.clip(drive - turn, -1.0, 1.0) ;
@@ -201,8 +164,22 @@ public class Singapore_2 extends LinearOpMode {
 
     }
 
+    //map hardware to ports
+    void mapHardware() {
+        leftFrontDrive = hardwareMap.get(DcMotor.class, "lf_d");
+        leftRearDrive = hardwareMap.get(DcMotor.class, "lr_d");
+        rightFrontDrive = hardwareMap.get(DcMotor.class, "rf_d");
+        rightRearDrive = hardwareMap.get(DcMotor.class, "rr_d");
+        elevatorMotor1 = hardwareMap.get(DcMotor.class, "el");
+        elevatorMotor2 = hardwareMap.get(DcMotor.class, "el1");
+        intakeMotor1 = hardwareMap.get(DcMotor.class, "in");
+        intakeMotor2 = hardwareMap.get(DcMotor.class, "in1");
+        bucketServo1 = hardwareMap.get(Servo.class, "b_s1");
+        bucketServo2 = hardwareMap.get(Servo.class, "b_s2");
+    }
+
     // calculates angle from vertical (positive -> front, negative -> back)
     double angleToServo(double angle) {
-        return angle = (135 + angle / 270);
+        return angle = ((135 + angle )/ 270);
     }
 }
