@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -23,7 +22,8 @@ public class Singapore_2 extends LinearOpMode {
     private DcMotor elevatorMotor1 = null;
     private DcMotor elevatorMotor2 = null;
     //private DcMotor bucketMotor = null;
-    private Servo bucketServo = null;
+    private Servo bucketServo1 = null;
+    private Servo bucketServo2 = null;
 
     private double averageRobotSpeed = 0;
     private double speedNow = 0;
@@ -39,6 +39,10 @@ public class Singapore_2 extends LinearOpMode {
     int bucketRestPosition = 0;
     int bucketFlipPosition = 100;
     int bucketFlipTreshold = 3000; // if over this amount of ticks, can flip bucket
+
+    // insert angleToServo(angle from vertical)
+    double servoStartPosition = angleToServo(90);
+    double servoFlippedPosition = angleToServo(-90);
 
 
     // Setup a variable for each drive wheel to save power level for telemetry
@@ -61,7 +65,9 @@ public class Singapore_2 extends LinearOpMode {
         intakeMotor1 = hardwareMap.get(DcMotor.class, "in");
         intakeMotor2 = hardwareMap.get(DcMotor.class, "in1");
         //  bucketMotor = hardwareMap.get(DcMotor.class, "bu");
-        bucketServo = hardwareMap.get(Servo.class, "b_s");
+        bucketServo1 = hardwareMap.get(Servo.class, "b_s1");
+        bucketServo2 = hardwareMap.get(Servo.class, "b_s2");
+
 
 
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -73,6 +79,8 @@ public class Singapore_2 extends LinearOpMode {
         elevatorMotor1.setDirection(DcMotor.Direction.FORWARD);
         elevatorMotor2.setDirection(DcMotor.Direction.REVERSE);
         //bucketMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        bucketServo1.setDirection(Servo.Direction.FORWARD);
+        bucketServo2.setDirection(Servo.Direction.REVERSE);
 
         elevatorMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         elevatorMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -101,8 +109,8 @@ public class Singapore_2 extends LinearOpMode {
             elevatorMotor2.setPower(0.6);
             //bucketMotor.setPower(0.6);
 
-            bucketServo.setPosition(100);
-            bucketServo.setDirection(Servo.Direction.FORWARD);
+            bucketServo1.setPosition(servoStartPosition);
+            bucketServo2.setPosition(servoStartPosition);
         }
 
         // run until the end of the match (driver presses STOP)
@@ -120,9 +128,11 @@ public class Singapore_2 extends LinearOpMode {
             }
 
             if(gamepad1.b) {
-                bucketServo.setPosition(0);
+                bucketServo1.setPosition(servoFlippedPosition);
+                bucketServo2.setPosition(servoFlippedPosition);
             } else {
-                bucketServo.setPosition(100);
+                bucketServo1.setPosition(servoStartPosition);
+                bucketServo2.setPosition(servoStartPosition);
             }
 
 
@@ -186,7 +196,13 @@ public class Singapore_2 extends LinearOpMode {
 
             telemetry.update();
 
+
         }
+
+    }
+
+    // calculates angle from vertical (positive -> front, negative -> back)
+    double angleToServo(double angle) {
+        return angle = (135 + angle / 270);
     }
 }
- 
