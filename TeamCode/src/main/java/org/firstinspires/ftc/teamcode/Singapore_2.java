@@ -33,9 +33,9 @@ public class Singapore_2 extends LinearOpMode {
 
     double elevatorMoveSpeed = 1;
     int startElevatorPosition = 0;
-    int maxElevatorPosition = 4600;
+    int maxElevatorPosition = 4700;
     int minElevatorPosition = 60;
-    int midElevatorPosition = 3600;
+    int midElevatorPosition = 3400;
 
     double bucketFlipSpeed = 0.6;
     int bucketRestPosition = 0;
