@@ -33,7 +33,7 @@ public class Singapore_2 extends LinearOpMode {
 
     double elevatorMoveSpeed = 1;
     int startElevatorPosition = 0;
-    int maxElevatorPosition = 7200;
+    int maxElevatorPosition = 4600;
     int minElevatorPosition = 60;
     int midElevatorPosition = 3600;
 
@@ -75,6 +75,11 @@ public class Singapore_2 extends LinearOpMode {
 
         elevatorMotor1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         elevatorMotor2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
 
         elevatorMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         elevatorMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -98,8 +103,8 @@ public class Singapore_2 extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            double drive = -gamepad1.left_stick_y;
-            double turn  =  gamepad1.right_stick_x;
+            double drive = gamepad1.left_stick_y;
+            double turn  =  -gamepad1.right_stick_x;
 
             if(gamepad1.right_trigger > gamepad1.left_trigger) {
                 intakePower = gamepad1.right_trigger;
@@ -153,8 +158,10 @@ public class Singapore_2 extends LinearOpMode {
             telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
             telemetry.addData("Motors", "intake (%.2f)", intakePower);
             telemetry.addData("avg robot speed", averageRobotSpeed);
-            telemetry.addData("ElevatorEncoderValue", elevatorMotor1.getCurrentPosition()+elevatorMotor2.getCurrentPosition()/2);
-            telemetry.addData("ElevatorTargetPosition", elevatorMotor1.getTargetPosition());
+            telemetry.addData("Elevator1EncoderValue", elevatorMotor1.getCurrentPosition());
+            telemetry.addData("Elevator2EncoderValue", elevatorMotor2.getCurrentPosition());
+            telemetry.addData("Elevator1TargetPosition", elevatorMotor1.getTargetPosition());
+            telemetry.addData("Elevator2TargetPosition", elevatorMotor2.getTargetPosition());
             telemetry.addData("ElevatorMode", elevatorMotor1.getMode());
 
             telemetry.update();
