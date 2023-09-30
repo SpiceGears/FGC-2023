@@ -7,9 +7,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import java.time.Clock;
-import java.util.Timer;
-
 @TeleOp(name="Singapore_2", group="Linear Opmode")
 // @Disabled
 public class Singapore_2 extends LinearOpMode {
@@ -25,7 +22,9 @@ public class Singapore_2 extends LinearOpMode {
     private Servo bucketServo1, bucketServo2 = null;
 
     // elevator
-    double elevatorSpeed = 1;
+    DcMotor.RunMode elevatorManualMode = DcMotor.RunMode.RUN_USING_ENCODER;
+    DcMotor.RunMode elevatorButtonMode = DcMotor.RunMode.RUN_TO_POSITION;
+    final double elevatorButtonModeSpeed = 1;
     final int startElevatorPosition = 0;
     final int minElevatorPosition = 60;
     final int midElevatorPosition = 3400;
@@ -71,6 +70,7 @@ public class Singapore_2 extends LinearOpMode {
             leftPower    = Range.clip(drive + turn, -1.0, 1.0) ;
             rightPower   = Range.clip(drive - turn, -1.0, 1.0) ;
 
+
             // controls intake
             if(gamepad1.right_trigger > gamepad1.left_trigger) {
                 intakePower = gamepad1.right_trigger;
@@ -83,35 +83,60 @@ public class Singapore_2 extends LinearOpMode {
             } else { intakePower = 0; }
 
 
+            // switches elevator modes
+            if(gamepad2.left_bumper) {
+                setElevatorMode(elevatorManualMode);
+            }
+            if(gamepad2.right_bumper) {
+                setElevatorMode(elevatorButtonMode);
+            }
+
+            // operates manual elevator mode
+            if(elevatorMotor1.getMode() == elevatorManualMode) {
+
+                setElevatorSpeed(gamepad2.left_stick_y); // set elevator speed to left joystick
+                setElevatorPosition(elevatorMotor1.getCurrentPosition()); // set elevator to stay after switching to button mode
+            }
+
+            // operates button elevator mode
+            if(elevatorMotor1.getMode() == elevatorButtonMode) {
+
+                setElevatorSpeed(elevatorButtonModeSpeed); // set elevator to move at given speed when in button mode
+
+                // set chosen position
+                if(gamepad2.a){
+                    setElevatorPosition(minElevatorPosition);
+                }
+                if (gamepad2.x) {
+                    setElevatorPosition(midElevatorPosition);
+                }
+                if (gamepad2.y) {
+                    setElevatorPosition(maxElevatorPosition);
+                }
+            }
+
 
             // controls bucket
-            if(gamepad1.b) {
+            if(gamepad2.b) {
                 setBucketPosition(bucketFlippedPosition);
             } else {
                 setBucketPosition(bucketRestPosition);
             }
-            // bucket safety feature
-            if(elevatorMotor1.getCurrentPosition() < bucketFlipThreshold) { // if elevator below bucket flip height threshold
-                if(bucketServo1.getPosition() >= 1.1 * bucketRestPosition) { // if bucket position isn't in acceptable position
-                    // stop elevator unless bucket is good to go
-                    setBucketPosition(bucketRestPosition);
-                    setElevatorSpeed(0);
+
+            // bucket safety feature on button mode
+            if(elevatorMotor1.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
+                if(elevatorMotor1.getCurrentPosition() < bucketFlipThreshold) { // if elevator below bucket flip height threshold
+                    if(bucketServo1.getPosition() >= 1.1 * bucketRestPosition) { // if bucket position isn't in acceptable position
+                        // stop elevator unless bucket is good to go
+                        setBucketPosition(bucketRestPosition);
+                        setElevatorSpeed(0);
+                    }
+                } else { // if elevator over bucket flip height threshold and bucket is flipped
+                    // go like nothing happened
+                    setElevatorSpeed(elevatorButtonModeSpeed);
                 }
-            } else { // if elevator over bucket flip height threshold and bucket is flipped
-                // go like nothing happened
-                setElevatorSpeed(elevatorSpeed);
             }
 
-            // controls elevator
-            if(gamepad1.a){
-                setElevatorPosition(minElevatorPosition);
-            }
-            if (gamepad1.x) {
-                setElevatorPosition(midElevatorPosition);
-            }
-            if (gamepad1.y) {
-                setElevatorPosition(maxElevatorPosition);
-            }
 
             // calculate for telemetry
             speedNow = Math.abs(leftPower) + Math.abs(rightPower) / 2;
@@ -142,6 +167,10 @@ public class Singapore_2 extends LinearOpMode {
     void setElevatorSpeed(double power) {
         elevatorMotor1.setPower(power);
         elevatorMotor2.setPower(power);
+    }
+    void setElevatorMode(DcMotor.RunMode runmode) {
+        elevatorMotor1.setMode(runmode);
+        elevatorMotor2.setMode(runmode);
     }
 
     // maps hardware to ports
@@ -188,7 +217,7 @@ public class Singapore_2 extends LinearOpMode {
             setElevatorPosition(startElevatorPosition);
             elevatorMotor1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             elevatorMotor2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            setElevatorSpeed(elevatorSpeed);
+            setElevatorSpeed(elevatorButtonModeSpeed);
             setBucketPosition(bucketRestPosition);
         }
     }
