@@ -22,7 +22,7 @@ public class Singapore_3 extends LinearOpMode {
     private Servo bucketServo1, bucketServo2 = null;
 
     // elevator
-    DcMotor.RunMode elevatorManualMode = DcMotor.RunMode.RUN_USING_ENCODER;
+    DcMotor.RunMode elevatorManualMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER;
     DcMotor.RunMode elevatorButtonMode = DcMotor.RunMode.RUN_TO_POSITION;
     final double elevatorButtonModeSpeed = 1;
     final int startElevatorPosition = 0;
@@ -31,7 +31,7 @@ public class Singapore_3 extends LinearOpMode {
     final int maxElevatorPosition = 4700;
 
     // insert angleToServo (angle from vertical (negative -> to front, positive -> to back) )
-    final double bucketRestPosition = angleToServo(132); // 0.83 angleToServo(-90)
+    final double bucketRestPosition = angleToServo(135); // 0.83 angleToServo(-90)
     final double bucketFlippedPosition = angleToServo(15); // 0.59 angleToServo(25)
     final int bucketFlipThreshold = 3000; // if over this amount of ticks, can flip bucket
 
