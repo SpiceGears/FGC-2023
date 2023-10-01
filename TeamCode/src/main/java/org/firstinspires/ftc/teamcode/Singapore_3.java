@@ -7,9 +7,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name="Singapore_2", group="Linear Opmode")
+@TeleOp(name="Singapore_3", group="Linear Opmode")
 // @Disabled
-public class Singapore_2 extends LinearOpMode {
+public class Singapore_3 extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -31,8 +31,8 @@ public class Singapore_2 extends LinearOpMode {
     final int maxElevatorPosition = 4700;
 
     // insert angleToServo (angle from vertical (negative -> to front, positive -> to back) )
-    final double bucketRestPosition = angleToServo(-90); // 0.1(6)
-    final double bucketFlippedPosition = angleToServo(25); // 0.59
+    final double bucketRestPosition = angleToServo(132); // 0.83 angleToServo(-90)
+    final double bucketFlippedPosition = angleToServo(15); // 0.59 angleToServo(25)
     final int bucketFlipThreshold = 3000; // if over this amount of ticks, can flip bucket
 
     // setup a variable for setting power and telemetry
@@ -72,12 +72,12 @@ public class Singapore_2 extends LinearOpMode {
 
 
             // controls intake
-            if(gamepad1.right_trigger > gamepad1.left_trigger) {
-                intakePower = gamepad1.right_trigger;
+            if(gamepad1.left_trigger > gamepad1.right_trigger) {
+                intakePower = gamepad1.left_trigger;
                 if(intakePower > 0.8) { intakePower = 1; } // make intake spin full throttle at 80% input
 
-            } else if(gamepad1.right_trigger < gamepad1.left_trigger) {
-                intakePower = -gamepad1.left_trigger;
+            } else if(gamepad1.left_trigger < gamepad1.right_trigger) {
+                intakePower = -gamepad1.right_trigger;
                 if(intakePower < -0.8) { intakePower = -1; } // make intake spin full throttle at 80% input
 
             } else { intakePower = 0; }
@@ -94,7 +94,7 @@ public class Singapore_2 extends LinearOpMode {
             // operates manual elevator mode
             if(elevatorMotor1.getMode() == elevatorManualMode) {
 
-                setElevatorSpeed(gamepad2.left_stick_y); // set elevator speed to left joystick
+                setElevatorSpeed(-gamepad2.left_stick_y); // set elevator speed to left joystick
                 setElevatorPosition(elevatorMotor1.getCurrentPosition()); // set elevator to stay after switching to button mode
             }
 
@@ -233,6 +233,7 @@ public class Singapore_2 extends LinearOpMode {
         telemetry.addData("Elevator1TargetPosition", elevatorMotor1.getTargetPosition());
         telemetry.addData("Elevator2TargetPosition", elevatorMotor2.getTargetPosition());
         telemetry.addData("ElevatorMode", elevatorMotor1.getMode());
+        telemetry.addData("ServoGetTargetPosition", bucketServo1.getPosition());
         telemetry.update();
     }
 
