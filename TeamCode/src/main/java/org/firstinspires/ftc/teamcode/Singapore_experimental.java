@@ -42,7 +42,7 @@ public class Singapore_experimental extends LinearOpMode {
     final double elevatorButtonModeSpeed = 1;
     final int startElevatorPosition = 0;
     final int minElevatorPosition = 60;
-    final int midElevatorPosition = 3400;
+    final int midElevatorPosition = 2750;
     final int maxElevatorPosition = 4700;
 
     // bucket servo
