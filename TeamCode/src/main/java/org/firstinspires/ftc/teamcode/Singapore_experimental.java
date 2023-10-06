@@ -13,9 +13,9 @@ import com.qualcomm.robotcore.util.Range;
 // import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 
 
-@TeleOp(name="Singapore_4", group="Linear Opmode")
+@TeleOp(name="Singapore_experimental", group="Linear Opmode")
 // @Disabled
-public class Singapore_4 extends LinearOpMode {
+public class Singapore_experimental extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -52,14 +52,12 @@ public class Singapore_4 extends LinearOpMode {
     final int bucketFlipThreshold = 3000; // if over this amount of ticks, can flip bucket
 
     // claw servo
-    // insert angleToServo (0 == 0deg)
-    final double clawStartPosition = angleToServo(-135); // TODO
-    final double clawOpenPosition = angleToServo(-50); // TODO
+    final double clawStartPosition = angleToServo(70);
+    final double clawOpenPosition = angleToServo(-120);
 
     // intake servo
-    // insert angleToServo (0 == 0deg)
-    final double sorterStartPosition = angleToServo(70); // TODO
-    final double sorterOpenPosition = angleToServo(-120); // TODO
+    final double sorterStartPosition = angleToServo(90);
+    final double sorterOpenPosition = angleToServo(-100);
 
     // setup a variable for setting power and telemetry
     double leftPower, rightPower;
@@ -72,15 +70,6 @@ public class Singapore_4 extends LinearOpMode {
     public void runOpMode() {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
-
-        // camera
-        // int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-        // // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-        // parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        // parameters.useExtendedTracking = false;
-        // parameters.cameraName = hardwareMap.get(WebcamName.class, "Webcam 1");
-        // this.vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
         // map hardware to port names
         mapHardware();
@@ -197,6 +186,9 @@ public class Singapore_4 extends LinearOpMode {
 
         }
 
+        // keeps elevator braked when program is off
+        setElevatorBrake();
+
     }
 
     void setClawPosition(double rawPosition) {
@@ -223,6 +215,30 @@ public class Singapore_4 extends LinearOpMode {
         elevatorMotor1.setMode(runmode);
         elevatorMotor2.setMode(runmode);
     }
+    void setElevatorBrake() {
+        elevatorMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        elevatorMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    String getBucketPositionName() {
+        String positionName = "unspecified";
+        if(bucketServo1.getPosition() == bucketRestPosition) { positionName = "rest"; }
+        if(bucketServo1.getPosition() == bucketFlippedPosition) { positionName = "flipped"; }
+        return positionName;
+    }
+    String getClawPositionName() {
+        String positionName = "unspecified";
+        if(clawServo1.getPosition() == clawOpenPosition) { positionName = "down"; }
+        if(clawServo1.getPosition() == clawStartPosition) { positionName = "up"; }
+        return positionName;
+    }
+    String getSorterPositionName() {
+        String positionName = "unspecified";
+        if(sorterServo1.getPosition() == sorterOpenPosition) { positionName = "down"; }
+        if(sorterServo1.getPosition() == sorterStartPosition) { positionName = "up"; }
+        return positionName;
+    }
+
 
     // maps hardware to ports
     void mapHardware() {
@@ -268,6 +284,10 @@ public class Singapore_4 extends LinearOpMode {
 
         elevatorMotor1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         elevatorMotor2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftRearDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightRearDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         setClawPosition(clawStartPosition);
         setSorterPosition(sorterStartPosition);
@@ -292,13 +312,13 @@ public class Singapore_4 extends LinearOpMode {
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
         telemetry.addData("Motors", "intake (%.2f)", intakePower);
+        telemetry.addData("Elevator position", elevatorMotor1.getCurrentPosition());
+        telemetry.addData("Elevator target", elevatorMotor1.getTargetPosition());
+        telemetry.addData("Elevator mode", elevatorMotor1.getMode());
+        telemetry.addData("Bucket position", getBucketPositionName().toUpperCase());
+        telemetry.addData("Claw position", getClawPositionName().toUpperCase());
+        telemetry.addData("Sorter position", getSorterPositionName().toUpperCase());
         telemetry.addData("avg robot speed", averageRobotSpeed);
-        telemetry.addData("Elevator1EncoderValue", elevatorMotor1.getCurrentPosition());
-        telemetry.addData("Elevator2EncoderValue", elevatorMotor2.getCurrentPosition());
-        telemetry.addData("Elevator1TargetPosition", elevatorMotor1.getTargetPosition());
-        telemetry.addData("Elevator2TargetPosition", elevatorMotor2.getTargetPosition());
-        telemetry.addData("ElevatorMode", elevatorMotor1.getMode());
-        telemetry.addData("ServoGetTargetPosition", bucketServo1.getPosition());
         telemetry.update();
     }
 
